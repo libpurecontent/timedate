@@ -1,6 +1,7 @@
 <?php
 
 # Class containing a variety of date/time processing functions
+# Version: 1.01
 class datetime
 {
 	# Function to produce a date array
@@ -24,6 +25,61 @@ class datetime
 		
 		# Return the array
 		return $datetime;
+	}
+	
+	
+	# Function to format the date
+	function formatDate ($date)
+	{
+		# Return false if the date is zeroed
+		if ($date == '0000-00-00') {return false;}
+		
+		# Attempt to split out the year, month and date
+		if (!list ($year, $month, $day) = explode ('-', $date)) {return $datestamp;}
+		
+		# If only a year has been entered, return that
+		#!# This is bad if it's January 1st ...
+		if (($month == '01') && ($day == '01')) {
+			return $year;
+		}
+		
+		# Else return the full date, with the date and month formatted sensibly
+		$months = array (1 => 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',);
+		return (int) $day . '/' . $months[(int) $month] . "/$year";
+	}
+	
+	
+	# Function to format the date
+	function convertBackwardsDateToText ($backwardsDateString, $format = 'l, jS F Y')
+	{
+		# Determine whether a hyphen is used to split the date and time
+		$splitter = ((strpos ($backwardsDateString, '-') !== false) ? '-' : '');
+		
+		# Get the year month and day out of the string
+		list ($year, $month, $day) = sscanf ($backwardsDateString, "%4s{$splitter}%2s{$splitter}%2s");
+		
+		# Convert to string
+		$dateFormatted = date ($format, mktime (0, 0, 0, $month, $day, $year));
+		
+		# Return the string
+		return $dateFormatted;
+	}
+	
+	
+	# Function to return an intelligent string for date of birth and death
+	function dateBirthDeath ($yearBirth, $yearDeath)
+	{
+		# Return both if both supplied
+		if (($yearBirth) && ($yearDeath)) {return " ($yearBirth - $yearDeath)";}
+		
+		# Return an empty string if neither supplied
+		if ((!$yearBirth) && (!$yearDeath)) {return '';}
+		
+		# If only the year of birth is supplied, return that
+		if (!$yearDeath) {return " (b. $yearBirth)";}
+		
+		# If only the year of death is supplied, return that
+		if (!$yearBirth) {return " (d. $yearDeath)";}
 	}
 	
 	
@@ -237,5 +293,62 @@ class datetime
 		
 		# Otherwise, all tests are passed, so return true
 		return true;
+	}
+	
+	
+	# Function to get an array of dates in future months
+	function getDatesForFutureMonths ($monthsAhead, $format = 'Y-m-d', $removeWeekends = false)
+	{
+		# Start an array to hold the dates
+		$dates = array ();
+		
+		# Add an extra month ahead so that it is $months ahead plus any remaining days
+		$monthsAhead++;
+		
+		# Define the current day, month and year
+		$day = date ('d');
+		$month = date ('m');
+		$year = date ('Y');
+		
+		# Advance through the calendar until finished
+		while ($monthsAhead) {
+			
+			# Skip weekend days if required
+			$skip = false;
+			if ($removeWeekends) {
+				$weekday = date ('l', mktime (0, 0, 0, $month, $day, $year));
+				if (($weekday == 'Saturday') || ($weekday == 'Sunday')) {
+					$skip = true;
+				}
+			}
+			
+			# Add the date
+			if (!$skip) {$dates[] = date ($format, mktime (0, 0, 0, $month, $day, $year));}
+			
+			# Try incrementing the day
+			if (checkdate ($month, $day + 1, $year)) {
+				$day++;
+			} else {
+				
+				# If the date is not valid, try incrementing the month but resetting the day
+				if (checkdate ($month + 1, 1, $year)) {
+					$day = 1;
+					$month++;
+					$monthsAhead--;
+				} else {
+					
+					# If the date is not valid, try incrementing the month but resetting the day
+					if (checkdate (1, 1, $year + 1)) {
+						$day = 1;
+						$month = 1;
+						$year++;
+						$monthsAhead--;
+					}
+				}
+			}
+		}
+		
+		# Return the dates
+		return $dates;
 	}
 }
