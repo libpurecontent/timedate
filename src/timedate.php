@@ -1,7 +1,9 @@
 <?php
 
 # Class containing a variety of date/time processing functions
-# Version: 1.01
+# http://download.geog.cam.ac.uk/projects/datetime/
+# Version: 1.02; 9/Dec/2005
+
 class datetime
 {
 	# Function to produce a date array
@@ -15,7 +17,7 @@ class datetime
 			$datetime['hour'],
 			$datetime['minute'],
 			$datetime['second'],
-		) = sscanf (($value == 'timestamp' ? date ('Y-m-d H:i:s') : $value), '%4s-%2s-%2s %2s:%2s:%2s');
+		) = sscanf ($value, '%4s-%2s-%2s %2s:%2s:%2s');
 		
 		# Construct a combined time formatted string
 		$datetime['time'] = $datetime['hour'] . ':' . $datetime['minute'] . ':' . $datetime['second'];
@@ -47,6 +49,14 @@ class datetime
 		$months = array (1 => 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',);
 		return (int) $day . '/' . $months[(int) $month] . "/$year";
 	}
+	
+	
+	# Function to present the date from a supplied array
+	function presentDateFromArray ($value, $level)
+	{
+		return (($level == 'datetime') ? $value['time'] . ', ': '') . date ('jS F, Y', mktime (0, 0, 0, $value['month'], $value['day'], $value['year']));
+	}
+	
 	
 	
 	# Function to format the date
@@ -302,7 +312,7 @@ class datetime
 		# Start an array to hold the dates
 		$dates = array ();
 		
-		# Add an extra month ahead so that it is $months ahead plus any remaining days
+		# Add an extra month ahead so that it is $months ahead plus any remaining days in that month
 		$monthsAhead++;
 		
 		# Define the current day, month and year
