@@ -2,13 +2,18 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/datetime/
-# Version: 1.02; 9/Dec/2005
+# Version: 1.03; 12/Dec/2005
 
 class datetime
 {
 	# Function to produce a date array
 	function getDateTimeArray ($value)
 	{
+		# If no value, return an empty array
+		if (!$value) {
+			return array ('year' => '', 'month' => '', 'day' => '', 'hour' => '', 'minute' => '', 'second' => '', 'time' => '', 'datetime' => '');
+		}
+		
 		# Obtain an array of time components
 		list (
 			$datetime['year'],
