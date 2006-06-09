@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/datetime/
-# Version: 1.03; 12/Dec/2005
+# Version: 1.0.4
 
 class datetime
 {
@@ -59,9 +59,20 @@ class datetime
 	# Function to present the date from a supplied array
 	function presentDateFromArray ($value, $level)
 	{
-		return (($level == 'datetime') ? $value['time'] . ', ': '') . date ('jS F, Y', mktime (0, 0, 0, $value['month'], $value['day'], $value['year']));
+		switch ($level) {
+			case 'datetime':
+				return $value['time'] . ', ' . date ('jS F, Y', mktime (0, 0, 0, $value['month'], $value['day'], $value['year']));
+				break;
+				
+			case 'date':
+				return date ('jS F, Y', mktime (0, 0, 0, $value['month'], $value['day'], $value['year']));
+				break;
+				
+			case 'year':
+				return $value['year'];
+				break;
+		}
 	}
-	
 	
 	
 	# Function to format the date
