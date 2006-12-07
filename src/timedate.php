@@ -2,9 +2,9 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/datetime/
-# Version: 1.0.4
+# Version: 1.1.0
 
-class datetime
+class timedate
 {
 	# Function to produce a date array
 	function getDateTimeArray ($value)
