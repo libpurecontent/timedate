@@ -1,8 +1,8 @@
 <?php
 
 # Class containing a variety of date/time processing functions
-# http://download.geog.cam.ac.uk/projects/datetime/
-# Version: 1.1.0
+# http://download.geog.cam.ac.uk/projects/timedate/
+# Version: 1.1.1
 
 class timedate
 {
