@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.1.1
+# Version: 1.1.2
 
 class timedate
 {
@@ -72,6 +72,23 @@ class timedate
 				return $value['year'];
 				break;
 		}
+	}
+	
+	
+	# Function to convert a timestamp to a string usable by strtotime
+	function convertTimestamp ($timestamp, $includeTime = true)
+	{
+		# Convert the timestamp
+		$timestamp = preg_replace ('/-(\d{2})(\d{2})(\d{2})$/', ' $1:$2:$3', $timestamp);
+		
+		# Determine the output string to use
+		$format = 'l jS M Y' . ($includeTime ? ', g.ia' : '');	// Previously: ($includeTime ? 'g.ia \o\n ' : '') . 'jS M Y';
+		
+		# Convert the timestamp
+		$string = date ($format, strtotime ($timestamp));
+		
+		# Return the string
+		return $string;
 	}
 	
 	
