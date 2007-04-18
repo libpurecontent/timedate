@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.1.2
+# Version: 1.1.3
 
 class timedate
 {
@@ -59,7 +59,17 @@ class timedate
 	# Function to present the date from a supplied array
 	function presentDateFromArray ($value, $level)
 	{
+		# Convert empty strings to 0
+		if (empty ($value['time'])) {$value['time'] = 0;}
+		if (empty ($value['day'])) {$value['day'] = 0;}
+		if (empty ($value['month'])) {$value['month'] = 0;}
+		if (empty ($value['year'])) {$value['year'] = 0;}
+		
 		switch ($level) {
+			case 'time':
+				return $value['time'];
+				break;
+				
 			case 'datetime':
 				return $value['time'] . ', ' . date ('jS F, Y', mktime (0, 0, 0, $value['month'], $value['day'], $value['year']));
 				break;
@@ -79,7 +89,7 @@ class timedate
 	function convertTimestamp ($timestamp, $includeTime = true)
 	{
 		# Convert the timestamp
-		$timestamp = preg_replace ('/-(\d{2})(\d{2})(\d{2})$/', ' $1:$2:$3', $timestamp);
+		$timestamp = preg_replace ('/-(\d{2})(\d{2})(\d{2})$/D', ' $1:$2:$3', $timestamp);
 		
 		# Determine the output string to use
 		$format = 'l jS M Y' . ($includeTime ? ', g.ia' : '');	// Previously: ($includeTime ? 'g.ia \o\n ' : '') . 'jS M Y';
