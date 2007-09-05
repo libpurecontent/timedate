@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.1.3
+# Version: 1.1.4
 
 class timedate
 {
@@ -57,7 +57,7 @@ class timedate
 	
 	
 	# Function to present the date from a supplied array
-	function presentDateFromArray ($value, $level)
+	function presentDateFromArray ($value, $level = 'date')
 	{
 		# Convert empty strings to 0
 		if (empty ($value['time'])) {$value['time'] = 0;}
