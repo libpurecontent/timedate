@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.1.4
+# Version: 1.1.5
 
 class timedate
 {
@@ -25,7 +25,11 @@ class timedate
 		) = sscanf ($value, '%4s-%2s-%2s %2s:%2s:%2s');
 		
 		# Construct a combined time formatted string
-		$datetime['time'] = $datetime['hour'] . ':' . $datetime['minute'] . ':' . $datetime['second'];
+		if ($datetime['hour'] || $datetime['minute'] || $datetime['second']) {
+			$datetime['time'] = $datetime['hour'] . ':' . $datetime['minute'] . ':' . $datetime['second'];
+		} else {
+			$datetime['time'] = '';
+		}
 		
 		# Construct a combined SQL-format datetime formatted string
 		$datetime['datetime'] = $datetime['year'] . '-' . $datetime['month'] . '-' . $datetime['day'] . ' ' . $datetime['time'];
