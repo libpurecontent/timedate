@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.1.5
+# Version: 1.1.6
 
 class timedate
 {
@@ -407,5 +407,46 @@ class timedate
 		
 		# Return the dates
 		return $dates;
+	}
+	
+	
+	# Function to get the last x Mondays
+	function mostRecentMondays ($total = 12, $convertToBackwardsDate = false)
+	{
+		# Get the current week
+		$week = (int) date ('W');	// (int) removes the leading zeros
+		$year = date ('Y');
+		
+		# Work backwards
+		$mondays = array ();
+		while ($total) {
+			
+			# Assign the Monday, converting to backwards date format if required
+			$monday = self::startOfWeek ($year, $week);
+			$mondays[] = ($convertToBackwardsDate ? date ('ymd', $monday) : $monday);
+			
+			# Reduce the week, taking care of year ends
+			$week--;
+			if ($week == 0) {
+				$week += 52;
+				$year--;
+			}
+			
+			# Reduce the counter
+			$total--;
+		}
+		
+		# Return the Mondays
+		return $mondays;
+	}
+	
+	
+	# Function to get the Monday start date of the week for grouping purposes; from http://www.phpbuilder.com/board/showthread.php?t=10222903
+	function startOfWeek ($year, $week)
+	{
+	    $jan1 = mktime (1, 1, 1, 1, 1, $year);
+	    $mondayOffset = (11 - date ('w', $jan1)) %7 - 3;
+	    $desiredMonday = strtotime (($week - 1) . ' weeks '. $mondayOffset . ' days', $jan1);
+	    return $desiredMonday;
 	}
 }
