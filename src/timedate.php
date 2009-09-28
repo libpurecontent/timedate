@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.1.6
+# Version: 1.1.7
 
 class timedate
 {
@@ -448,5 +448,24 @@ class timedate
 	    $mondayOffset = (11 - date ('w', $jan1)) %7 - 3;
 	    $desiredMonday = strtotime (($week - 1) . ' weeks '. $mondayOffset . ' days', $jan1);
 	    return $desiredMonday;
+	}
+	
+	
+	# Function to get the current academic year
+	function academicYear ($yearStartMonth = 9, $asRangeString = false)
+	{
+		# Convert years to ia/ib/ii
+		$year = date ('Y');
+		$month = date ('n');
+		$currentYearStart = ($month < $yearStartMonth ? $year - 1 : $year);
+		
+		# Return formatted as e.g. 2010-2011
+		#!# Could be improved
+		if ($asRangeString) {
+			return ($currentYearStart . '-' . ($currentYearStart + 1));
+		}
+		
+		# Return the current year
+		return $currentYearStart;
 	}
 }
