@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.1.7
+# Version: 1.1.8
 
 class timedate
 {
@@ -467,5 +467,67 @@ class timedate
 		
 		# Return the current year
 		return $currentYearStart;
+	}
+	
+	
+	# Function to determine if a day is a working day
+	function isWorkingDay ($dateString /* in YYYY-MM-DD format */, $disallowChristmasToNewYear = true)
+	{
+		# Convert the start date to unixtime (using an arbitary time of 12 midday)
+		list ($fourDigitYear, $twoDigitMonth, $twoDigitDay) = explode ('-', $dateString);
+		$startUnixtime = mktime (12, 0, 0, $twoDigitMonth, $twoDigitDay, $fourDigitYear);
+		
+		# Determine the day of the week
+		$weekday = date ('N', $startUnixtime);
+		if ($weekday == 6 || $weekday == 7) {
+			return false;
+		}
+		
+		# If dates between Christmas and New Year are not permitted, check for those
+		if ($disallowChristmasToNewYear) {
+			if (($twoDigitMonth == 12) && ($twoDigitDay > 24)) {return false;}
+			if (($twoDigitMonth == 01) && ($twoDigitDay == 01)) {return false;}
+		}
+		
+		# Define a list of public holidays; taken from http://www.direct.gov.uk/en/Employment/Employees/Timeoffandholidays/DG_073741
+		$publicHolidays = array (
+			'2010-01-01',
+			'2010-04-02',
+			'2010-04-05',
+			'2010-05-03',
+			'2010-05-31',
+			'2010-08-30',
+			'2010-12-27',
+			'2010-12-28',
+			
+			'2011-01-03',
+			'2011-04-22',
+			'2011-04-25',
+			'2011-05-02',
+			'2011-05-30',
+			'2011-08-29',
+			'2011-12-26',
+			'2011-12-27',
+			
+			'2012-01-02',
+			'2012-04-06',
+			'2012-04-09',
+			'2012-05-07',
+			'2012-06-04',
+			'2012-06-05',
+			'2012-08-27',
+			'2012-12-25',
+			'2012-12-26',
+			
+			// Add to this list each year when new dates are confirmed
+		);
+		
+		# Check if it is a public holiday
+		if (in_array ($dateString, $publicHolidays)) {
+			return false;
+		}
+		
+		# It is a working day
+		return true;
 	}
 }
