@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.1.8
+# Version: 1.1.9
 
 class timedate
 {
@@ -491,15 +491,6 @@ class timedate
 		
 		# Define a list of public holidays; taken from http://www.direct.gov.uk/en/Employment/Employees/Timeoffandholidays/DG_073741
 		$publicHolidays = array (
-			'2010-01-01',
-			'2010-04-02',
-			'2010-04-05',
-			'2010-05-03',
-			'2010-05-31',
-			'2010-08-30',
-			'2010-12-27',
-			'2010-12-28',
-			
 			'2011-01-03',
 			'2011-04-22',
 			'2011-04-25',
@@ -518,6 +509,33 @@ class timedate
 			'2012-08-27',
 			'2012-12-25',
 			'2012-12-26',
+			
+			'2013-01-01',
+			'2013-03-29',
+			'2013-04-01',
+			'2013-05-06',
+			'2013-05-27',
+			'2013-08-26',
+			'2013-12-25',
+			'2013-12-26',
+			
+			'2014-01-01',
+			'2014-04-18',
+			'2014-04-21',
+			'2014-05-05',
+			'2014-05-26',
+			'2014-08-25',
+			'2014-12-25',
+			'2014-12-26',
+			
+			'2015-01-01',
+			'2015-04-03',
+			'2015-04-06',
+			'2015-05-04',
+			'2015-05-25',
+			'2015-08-31',
+			'2015-12-25',
+			'2015-12-28',
 			
 			// Add to this list each year when new dates are confirmed
 		);
