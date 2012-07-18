@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.1.9
+# Version: 1.1.10
 
 class timedate
 {
@@ -109,11 +109,25 @@ class timedate
 	# Function to format the date
 	function convertBackwardsDateToText ($backwardsDateString, $format = 'l, jS F Y')
 	{
-		# Determine whether a hyphen is used to split the date and time
-		$splitter = ((strpos ($backwardsDateString, '-') !== false) ? '-' : '');
+		# Remove hyphens (as used in ISO dates e.g. 2012-07-18)
+		$backwardsDateString = str_replace ('-', '', $backwardsDateString);
+		
+		# Ensure the string is numeric
+		if (!ctype_digit ($backwardsDateString)) {return false;}
+		
+		# Upgrade 6-character strings (e.g. 120718) to 8 characters; 6-character are assumed to be prefixed with 20
+		if (strlen ($backwardsDateString) == 6) {
+			$centurySwitchPoint = 70;	// i.e. 1970 becomes 19, but 2069 becomes 20
+			$year = substr ($backwardsDateString, 0, 2);
+			$yearPrefix = ($year < $centurySwitchPoint ? 20 : 19);
+			$backwardsDateString = $yearPrefix . $backwardsDateString;
+		}
+		
+		# End if not 8 characters long now
+		if (strlen ($backwardsDateString) != 8) {return false;}
 		
 		# Get the year month and day out of the string
-		list ($year, $month, $day) = sscanf ($backwardsDateString, "%4s{$splitter}%2s{$splitter}%2s");
+		list ($year, $month, $day) = sscanf ($backwardsDateString, '%4s%2s%2s');
 		
 		# Convert to string
 		$dateFormatted = date ($format, mktime (0, 0, 0, $month, $day, $year));
