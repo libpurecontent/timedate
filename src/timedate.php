@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.1.10
+# Version: 1.1.11
 
 class timedate
 {
@@ -424,27 +424,50 @@ class timedate
 	}
 	
 	
-	# Function to get the last x Mondays
-	function mostRecentMondays ($total = 12, $convertToBackwardsDate = false)
+	# Function to get the dates of each week as array(startOfWeekTimestamp=>array(1=>timestamp,2=>timestamp,etc.),weeknumber..)
+	public function datesOfWeeks ($total = 12, $timestamp = false, $dateFormat = 'U')
 	{
-		# Get the current week
-		$week = (int) date ('W');	// (int) removes the leading zeros
-		$year = date ('Y');
+		# Get the Mondays from now
+		$mondays = timedate::getMondays ($total, $timestamp);
 		
-		# Work backwards
+		# Loop through each week
+		$weeks = array ();
+		foreach ($mondays as $startOfWeekTimestamp) {
+			
+			# Determine the week number (0-52)
+			$weeks[$startOfWeekTimestamp] = array ();
+			
+			# Add each day, indexed from 1 (for Monday) to 7 (for Sunday)
+			for ($days = 0; $days < 7; $days++) {
+				$increaseFromWeekStart = $days * 60*60*24;
+				$day = date ($dateFormat, $startOfWeekTimestamp + $increaseFromWeekStart);
+				$dayNumber = $days + 1;
+				$weeks[$startOfWeekTimestamp][$dayNumber] = $day;
+			}
+		}
+		
+		# Return the weeks
+		return $weeks;
+	}
+	
+	
+	# Function to get Mondays from a specific date
+	function getMondays ($total = 12, $timestamp = false, $forwards = true, $dateFormat = false /* e.g. 'ymd' for 6-digit backwards date format; default gives unixtime */)
+	{
+		# Determine the week and year to use, defaulting to the current date
+		$week = (int) ($timestamp ? date ('W', $timestamp) : date ('W'));	// (int) removes the leading zeros
+		$year = ($timestamp ? date ('Y', $timestamp) : date ('Y'));
+		
+		# Work through the required number of weeks
 		$mondays = array ();
 		while ($total) {
 			
 			# Assign the Monday, converting to backwards date format if required
 			$monday = self::startOfWeek ($year, $week);
-			$mondays[] = ($convertToBackwardsDate ? date ('ymd', $monday) : $monday);
+			$mondays[] = ($dateFormat ? date ($dateFormat, $monday) : $monday);
 			
-			# Reduce the week, taking care of year ends
-			$week--;
-			if ($week == 0) {
-				$week += 52;
-				$year--;
-			}
+			# Increment the week, either forwards or backwards; year ends are dealt with automatically by date, e.g. week -10 will be the 10th week before the start of the current year
+			$week = $week + ($forwards ? 1 : -1);
 			
 			# Reduce the counter
 			$total--;
@@ -458,7 +481,7 @@ class timedate
 	# Function to get the Monday start date of the week for grouping purposes; from http://www.phpbuilder.com/board/showthread.php?t=10222903
 	function startOfWeek ($year, $week)
 	{
-	    $jan1 = mktime (1, 1, 1, 1, 1, $year);
+	    $jan1 = mktime (1, 1, 1, 1, 1, $year);	// 1.01am, which should guarantee against hour shifts
 	    $mondayOffset = (11 - date ('w', $jan1)) %7 - 3;
 	    $desiredMonday = strtotime (($week - 1) . ' weeks '. $mondayOffset . ' days', $jan1);
 	    return $desiredMonday;
