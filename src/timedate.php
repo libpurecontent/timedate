@@ -2,12 +2,12 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.1.12
+# Version: 1.2.0
 
 class timedate
 {
 	# Function to produce a date array
-	function getDateTimeArray ($value)
+	public static function getDateTimeArray ($value)
 	{
 		# If no value, return an empty array
 		if (!$value) {
@@ -40,7 +40,8 @@ class timedate
 	
 	
 	# Function to format the date
-	function formatDate ($date)
+	#!# Could be made more efficient using strtotime()
+	public static function formatDate ($date)
 	{
 		# Return false if the date is zeroed
 		if ($date == '0000-00-00') {return false;}
@@ -61,7 +62,7 @@ class timedate
 	
 	
 	# Function to present the date from a supplied array
-	function presentDateFromArray ($value, $level = 'date')
+	public static function presentDateFromArray ($value, $level = 'date')
 	{
 		# Convert empty strings to 0
 		if (empty ($value['time'])) {$value['time'] = 0;}
@@ -90,7 +91,7 @@ class timedate
 	
 	
 	# Function to convert a timestamp to a string usable by strtotime
-	function convertTimestamp ($timestamp, $includeTime = true)
+	public static function convertTimestamp ($timestamp, $includeTime = true)
 	{
 		# Convert the timestamp
 		$timestamp = preg_replace ('/-(\d{2})(\d{2})(\d{2})$/D', ' $1:$2:$3', $timestamp);
@@ -107,7 +108,7 @@ class timedate
 	
 	
 	# Function to format the date
-	function convertBackwardsDateToText ($backwardsDateString, $format = 'l, jS F Y')
+	public static function convertBackwardsDateToText ($backwardsDateString, $format = 'l, jS F Y')
 	{
 		# Remove hyphens (as used in ISO dates e.g. 2012-07-18)
 		$backwardsDateString = str_replace ('-', '', $backwardsDateString);
@@ -138,7 +139,7 @@ class timedate
 	
 	
 	# Function to return an intelligent string for date of birth and death
-	function dateBirthDeath ($yearBirth, $yearDeath)
+	public static function dateBirthDeath ($yearBirth, $yearDeath)
 	{
 		# Return both if both supplied
 		if (($yearBirth) && ($yearDeath)) {return " ($yearBirth - $yearDeath)";}
@@ -155,7 +156,7 @@ class timedate
 	
 	
 	# Function to parse a string for the time and return a correctly-formatted SQL version of it
-	function parseTime ($input)
+	public static function parseTime ($input)
 	{
 		# 1a. Remove any surrounding whitespace from the input
 		$time = strtolower (trim ($input));
@@ -297,7 +298,7 @@ class timedate
 	
 	
 	# Function to convert a two-character year to a four-character year
-	function convertYearToFourCharacters ($year, $autoCenturyConversationLastYear = 69)
+	public static function convertYearToFourCharacters ($year, $autoCenturyConversationLastYear = 69)
 	{
 		# Check that the value given is an integer
 		if (!is_numeric ($year)) {return false;}
@@ -319,7 +320,7 @@ class timedate
 	
 	# Function to determine if a date is a valid date supplied in SQL syntax; # NB Using (strtotime ($string)) === -1) doesn't give proper results
 	#R# Split into three functions
-	function isValidDateFormat ($string, $dateTime = true)
+	public static function isValidDateFormat ($string, $dateTime = true)
 	{
 		# Trim the string
 		$string = trim ($string);
@@ -368,7 +369,7 @@ class timedate
 	
 	
 	# Function to get an array of dates in future months
-	function getDatesForFutureMonths ($monthsAhead, $format = 'Y-m-d', $removeWeekends = false)
+	public static function getDatesForFutureMonths ($monthsAhead, $format = 'Y-m-d', $removeWeekends = false)
 	{
 		# Start an array to hold the dates
 		$dates = array ();
@@ -425,7 +426,7 @@ class timedate
 	
 	
 	# Function to get Mondays from a specific date
-	function getMondays ($total = 12, $dateFormat = false /* e.g. 'ymd' for 6-digit backwards date format; default gives unixtime */, $forwards = true, $timestamp = false, $excludeCurrent = false)
+	public static function getMondays ($total = 12, $dateFormat = false /* e.g. 'ymd' for 6-digit backwards date format; default gives unixtime */, $forwards = true, $timestamp = false, $excludeCurrent = false)
 	{
 		# Determine the week and year to use, defaulting to the current date
 		$week = (int) ($timestamp ? date ('W', $timestamp) : date ('W'));	// (int) removes the leading zeros
@@ -460,7 +461,7 @@ class timedate
 	
 	
 	# Function to get the Monday start date of the week for grouping purposes; from http://www.phpbuilder.com/board/showthread.php?t=10222903
-	function startOfWeek ($year, $week)
+	public static function startOfWeek ($year, $week)
 	{
 	    $jan1 = mktime (1, 1, 1, 1, 1, $year);	// 1.01am, which should guarantee against hour shifts
 	    $mondayOffset = (11 - date ('w', $jan1)) %7 - 3;
@@ -470,7 +471,7 @@ class timedate
 	
 	
 	# Function to get the current academic year
-	function academicYear ($yearStartMonth = 9, $asRangeString = false)
+	public static function academicYear ($yearStartMonth = 9, $asRangeString = false)
 	{
 		# Convert years to ia/ib/ii
 		$year = date ('Y');
@@ -489,7 +490,7 @@ class timedate
 	
 	
 	# Function to determine if a day is a working day
-	function isWorkingDay ($dateString /* in YYYY-MM-DD format */, $disallowChristmasToNewYear = true)
+	public static function isWorkingDay ($dateString /* in YYYY-MM-DD format */, $disallowChristmasToNewYear = true)
 	{
 		# Convert the start date to unixtime (using an arbitary time of 12 midday)
 		list ($fourDigitYear, $twoDigitMonth, $twoDigitDay) = explode ('-', $dateString);
@@ -507,7 +508,7 @@ class timedate
 			if (($twoDigitMonth == 01) && ($twoDigitDay == 01)) {return false;}
 		}
 		
-		# Define a list of public holidays; taken from http://www.direct.gov.uk/en/Employment/Employees/Timeoffandholidays/DG_073741
+		# Define a list of public holidays; taken from https://www.gov.uk/bank-holidays
 		$publicHolidays = array (
 			'2011-01-03',
 			'2011-04-22',
