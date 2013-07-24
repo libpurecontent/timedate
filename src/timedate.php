@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.2.0
+# Version: 1.2.1
 
 class timedate
 {
@@ -369,7 +369,7 @@ class timedate
 	
 	
 	# Function to get an array of dates in future months
-	public static function getDatesForFutureMonths ($monthsAhead, $format = 'Y-m-d', $removeWeekends = false)
+	public static function getDatesForFutureMonths ($monthsAhead, $format = 'Y-m-d', $weekendDays = true)
 	{
 		# Start an array to hold the dates
 		$dates = array ();
@@ -387,10 +387,11 @@ class timedate
 			
 			# Skip weekend days if required
 			$skip = false;
-			if ($removeWeekends) {
-				$weekday = date ('l', mktime (0, 0, 0, $month, $day, $year));
-				if (($weekday == 'Saturday') || ($weekday == 'Sunday')) {
-					$skip = true;
+			$weekday = date ('l', mktime (0, 0, 0, $month, $day, $year));
+			if (($weekday == 'Saturday') || ($weekday == 'Sunday')) {
+				if (!$weekendDays) {$skip = true;}
+				if (is_array ($weekendDays)) {
+					$skip = (!in_array (strtolower ($weekday), $weekendDays));
 				}
 			}
 			
@@ -568,3 +569,5 @@ class timedate
 		return true;
 	}
 }
+
+?>
