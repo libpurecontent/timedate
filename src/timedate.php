@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.2.1
+# Version: 1.2.2
 
 class timedate
 {
@@ -174,30 +174,30 @@ class timedate
 		}
 		
 		# 3. Return false if a starting (originally non-whitespace) separator has been found
-		if (ereg ('^ ', $time)) {return false;}
+		if (preg_match ('/^ /', $time)) {return false;}
 		
 		# 4. Return false if two adjacent whitespaces are found (i.e. do not allow multiples of originally non-whitespace allowed characters)
-		if (ereg ('  ', $time)) {return false;}
+		if (substr_count ($time, '  ')) {return false;}
 		
 		# 5. Remove any trailing separator
 		$time = trim ($time);
 		
 		# 6b. Throw error if string contains other than: 0-9, whitespace separator, or the letters a m p
 		#!# This could ideally be improved to weed out more problems earlier on
-		if (ereg ('[^0-9\ amp]+', $time)) {return false;}
+		if (preg_match ('/[^0-9\ amp]+/', $time)) {return false;}
 		
 		# 7a. Adjust am and pm for the possibility of a.m. or a.m or p.m. or p.m having been entered
 		$time = str_replace ('a m', 'am', $time);
 		$time = str_replace ('p m', 'pm', $time);
 		
 		# 7b. If string ends with am or pm then strip that off and hold it for later use
-		if ((eregi ('am$', $time)) || (eregi ('pm$', $time))) {
-			$timeParts['meridiem'] = substr ($time, -2);
+		if (preg_match ('/(am|pm)$/i', $time)) {
+			$timeParts['meridiem'] = substr (strtolower ($time), -2);
 			$time = substr ($time, 0, -2);
 		}
 		
 		# 8. Throw error if string contains other than: 0-9 or space
-		if (ereg ('[^0-9\ ]+', $time)) {return false;}
+		if (preg_match ('/[^0-9\ ]+/', $time)) {return false;}
 		
 		# 9. Remove any trailing separator
 		$time = trim ($time);
@@ -238,10 +238,11 @@ class timedate
 		} else {
 			
 			# 10b. Throw error if string contains 3 or more numeric characters but starts with number-space-number-space, e.g. 1 1 00
-			if (($numbersInString > 3) && (ereg ('^[0-9]\ [0-9]\ ', $time))) {return false;}
+			if (($numbersInString > 3) && (preg_match ('/^[0-9]\ [0-9]\ /', $time))) {return false;}
 			
 			# Throw error if string ends with space-number-space
-			if (ereg ('\ [0-9]$', $time)) {return false;}
+			#!# Not clear what this is supposed to do; backslash-space in the regexp seems wrong, and comment doesn't match code
+			if (preg_match ('/\ [0-9]$/', $time)) {return false;}
 			
 			# Recalculate the number of numeric digits in the string
 			$numericOnlyString = str_replace (' ', '', $time);
@@ -251,7 +252,7 @@ class timedate
 			if ($numbersInString == 3 || $numbersInString == 4) {
 				
 				# Make sure the last two characters form a number between 00-59
-				if (!ereg ('[0-5][0-9]$', $time)) {return false;}
+				if (!preg_match ('/[0-5][0-9]$/', $time)) {return false;}
 				
 				# Extract the minutes
 				$timeParts['minutes'] = substr ($time, -2);
@@ -262,7 +263,7 @@ class timedate
 		}
 		
 		# 15a. Check that there is no whitespace left (all that should remain is hours)
-		if (!ereg ('[0-9]{1,2}', $time)) {return false;}
+		if (!preg_match ('/[0-9]{1,2}/', $time)) {return false;}
 		
 		# 15b. Validate the hour figure; firstly check that the hours are not above 23 (they cannot be less than 0 because - is not an allowable character)
 		if ($time > 23) {return false;}
