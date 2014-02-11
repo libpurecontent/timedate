@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.2.3
+# Version: 1.2.4
 
 class timedate
 {
@@ -470,7 +470,7 @@ class timedate
 	
 	
 	# Function to get the current academic year
-	public static function academicYear ($yearStartMonth = 9, $asRangeString = false)
+	public static function academicYear ($yearStartMonth = 9, $asRangeString = false, $rangeSecondTwoDigits = false)
 	{
 		# Convert years to ia/ib/ii
 		$year = date ('Y');
@@ -480,7 +480,11 @@ class timedate
 		# Return formatted as e.g. 2010-2011
 		#!# Could be improved
 		if ($asRangeString) {
-			return ($currentYearStart . '-' . ($currentYearStart + 1));
+			$followingYear = ($currentYearStart + 1);
+			if ($rangeSecondTwoDigits) {
+				$followingYear = substr ($followingYear, -2);
+			}
+			return ($currentYearStart . '-' . $followingYear);
 		}
 		
 		# Return the current year
