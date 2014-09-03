@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.2.4
+# Version: 1.2.5
 
 class timedate
 {
@@ -421,6 +421,57 @@ class timedate
 		
 		# Return the dates
 		return $dates;
+	}
+	
+	
+	# Function to get months, indexed by year
+	public static function getMonthsByYear ($startDate = '1970-01-01', $reverseOrdering = false, $twoFigureMonth = true)
+	{
+		# End if invalid string
+		if (!preg_match ('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $startDate, $matches)) {return array ();}
+		list ($startYear, $startMonth, $startDay) = array ($matches[1], $matches[2], $matches[3]);
+		
+		# End if invalid date
+		if (!checkdate ($startMonth, $startDay, $startYear)) {return array ();}
+		
+		# Determine the current year and current month, which will be matched against a range-generated value
+		$currentYear = date ('Y');	// 4-digit year
+		$currentMonth = date ('n');	// 1-digit month
+		
+		# End if the supplied year or year-month is in the future
+		if ($startYear > $currentYear) {return array ();}
+		if ($startYear == $currentYear) {
+			if ($startMonth > $currentMonth) {return array ();}
+		}
+		
+		# Start a list of months
+		$monthsByYear = array ();
+		
+		# Loop through each year until the current
+		$yearsRange = range ($startYear, $currentYear);
+		if ($reverseOrdering) {
+			$yearsRange = array_reverse ($yearsRange);
+		}
+		foreach ($yearsRange as $year) {
+			
+			# Fill the array with a list of months, normally 1-12, except for the start and finish year
+			$monthRangeStart = ($year == $startYear ? $startMonth : 1);
+			$monthRangeFinish = ($year == $currentYear ? $currentMonth : 12);
+			$monthsRange = range ($monthRangeStart, $monthRangeFinish);
+			if ($reverseOrdering) {
+				$monthsRange = array_reverse ($monthsRange);
+			}
+			foreach ($monthsRange as $month) {
+				$yearMonthAsText = date ('F', mktime (0, 0, 0, $month, 10)) . ', ' . $year;
+				if ($twoFigureMonth) {
+					$month = str_pad ($month, 2, '0', STR_PAD_LEFT);
+				}
+				$monthsByYear[$year][$month] = $yearMonthAsText;
+			}
+		}
+		
+		# Return the list of months
+		return $monthsByYear;
 	}
 	
 	
