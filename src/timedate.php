@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.2.6
+# Version: 1.2.7
 
 class timedate
 {
@@ -613,6 +613,24 @@ class timedate
 			'2015-08-31',
 			'2015-12-25',
 			'2015-12-28',
+			
+			'2016-01-01',
+			'2016-03-25',
+			'2016-03-28',
+			'2016-05-02',
+			'2016-05-30',
+			'2016-08-29',
+			'2016-12-26',
+			'2016-12-27',
+			
+			'2017-01-02',
+			'2017-04-14',
+			'2017-04-17',
+			'2017-05-01',
+			'2017-05-29',
+			'2017-08-28',
+			'2017-12-25',
+			'2017-12-26',
 			
 			// Add to this list each year when new dates are confirmed
 		);
