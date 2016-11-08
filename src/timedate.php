@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.2.7
+# Version: 1.2.8
 
 class timedate
 {
@@ -294,6 +294,34 @@ class timedate
 			(isSet ($timeParts['seconds']) ? $timeParts['seconds'] : '00');
 		
 		# Return the assembled and validated string
+		return $time;
+	}
+	
+	
+	# Function to simplify a time string for display; e.g. '14:30:00' would become '2.30pm'; seconds are discarded in the results
+	public static function simplifyTime ($sqlTime)
+	{
+		# Ensure valid format or return as-is
+		if (!preg_match ('/^([0-2][0-9]):([0-9][0-9]):[0-9][0-9]$/', $sqlTime, $matches)) {
+			return $sqlTime;
+		}
+		
+		# Obtain the hours and minutes; seconds are discarded in the results
+		$hours = (int) $matches[1];
+		$minutes = (int) $matches[2];
+		
+		# Set the suffix
+		$suffix = ($hours >= 12 ? 'pm' : 'am');
+		
+		# If the hours are greater than 12, substract
+		if ($hours > 12) {
+			$hours -= 12;
+		}
+		
+		# Compile the string
+		$time = $hours . ($minutes ? '.' . $minutes : '') . $suffix;
+		
+		# Return the new time
 		return $time;
 	}
 	
