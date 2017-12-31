@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.2.8
+# Version: 1.2.9
 
 class timedate
 {
@@ -299,6 +299,7 @@ class timedate
 	
 	
 	# Function to simplify a time string for display; e.g. '14:30:00' would become '2.30pm'; seconds are discarded in the results
+	#!# Replace with a strtotime -based method
 	public static function simplifyTime ($sqlTime)
 	{
 		# Ensure valid format or return as-is
@@ -660,6 +661,23 @@ class timedate
 			'2017-12-25',
 			'2017-12-26',
 			
+			'2018-01-01',
+			'2018-03-30',
+			'2018-04-02',
+			'2018-05-07',
+			'2018-05-28',
+			'2018-08-27',
+			'2018-12-25',
+			'2018-12-26',
+			
+			'2019-01-01',
+			'2019-04-19',
+			'2019-04-22',
+			'2019-05-06',
+			'2019-05-27',
+			'2019-08-26',
+			'2019-12-25',
+			'2019-12-26',
 			// Add to this list each year when new dates are confirmed
 		);
 		
