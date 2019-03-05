@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # http://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.2.9
+# Version: 1.2.10
 
 class timedate
 {
@@ -678,6 +678,16 @@ class timedate
 			'2019-08-26',
 			'2019-12-25',
 			'2019-12-26',
+			
+			'2020-01-01',
+			'2020-04-10',
+			'2020-04-23',
+			'2020-05-04',
+			'2020-05-25',
+			'2020-08-31',
+			'2020-12-25',
+			'2020-12-26',
+			
 			// Add to this list each year when new dates are confirmed
 		);
 		
