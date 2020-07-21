@@ -2,7 +2,7 @@
 
 # Class containing a variety of date/time processing functions
 # https://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.2.11
+# Version: 1.2.12
 
 class timedate
 {
@@ -299,7 +299,7 @@ class timedate
 	
 	
 	# Function to simplify a time string for display; e.g. '14:30:00' would become '2.30pm'; seconds are discarded in the results
-	public static function simplifyTime ($sqlTime)
+	public static function simplifyTime ($sqlTime, $disambiguate0AmPm = false)
 	{
 		# Ensure valid format or return as-is
 		if (!preg_match ('/^([0-2][0-9]):([0-9][0-9]):[0-9][0-9]$/', $sqlTime, $matches)) {
@@ -308,18 +308,28 @@ class timedate
 		
 		# Obtain the hours and minutes; seconds are discarded in the results
 		$hours = (int) $matches[1];
-		$minutes = (int) $matches[2];
+		$minutes = $matches[2];
 		
 		# Set the suffix
 		$suffix = ($hours >= 12 ? 'pm' : 'am');
 		
-		# If the hours are greater than 12, substract
+		# If the hours are greater than 12, subtract; this will mean 0am and 12pm will both be unchanged
 		if ($hours > 12) {
 			$hours -= 12;
 		}
 		
 		# Compile the string
-		$time = $hours . ($minutes ? '.' . $minutes : '') . $suffix;
+		$time = $hours . ($minutes != '00' ? '.' . $minutes : '') . $suffix;
+		
+		# Deal with special cases of midnight and midday; see: https://en.wikipedia.org/wiki/12-hour_clock#Confusion_at_noon_and_midnight
+		if ($disambiguate0AmPm) {
+			if ($time == '0am') {
+				$time = '0am midnight (start of day)';
+			}
+			if ($time == '12pm') {
+				$time = '12pm midday';
+			}
+		}
 		
 		# Return the new time
 		return $time;
