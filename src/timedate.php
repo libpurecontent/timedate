@@ -1,9 +1,6 @@
 <?php
 
 # Class containing a variety of date/time processing functions
-# https://download.geog.cam.ac.uk/projects/timedate/
-# Version: 1.2.12
-
 class timedate
 {
 	# Function to produce a date array
