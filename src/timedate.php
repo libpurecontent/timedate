@@ -634,6 +634,215 @@ class timedate
 		# It is a working day
 		return true;
 	}
+	
+	
+	# Function to add JS calendar rending over the bookings table, based on the range of dates supplied (in Y-m-d SQL format)
+	# Link dates options: true for all / false for none / simple array of dates / associative array of date => array (timeLabel => url)
+	public static function calendar ($dates, $linkDates = true, $linkFormat = '#Y-m-d')
+	{
+		# Start the HTML
+		$html = '';
+		
+		# Order the supplied dates, in case not already ordered
+		sort ($dates);
+		
+		# Determine if the link dates have timeslots
+		$hasTimeslots = application::isAssociativeArray ($linkDates);
+		
+		# Determine today
+		$today = date ('Y-m-d');
+		
+		# Get the earliest and latest months
+		$startDate = application::array_first_value ($dates);
+		list ($startYear, $startMonth, $startDay_ignored) = explode ('-', $startDate);
+		$endDate = application::array_last_value ($dates);
+		list ($endYear, $endMonth, $endDay_ignored) = explode ('-', $endDate);
+		
+		# Build the calendar, looping through each year, month and day in each month within the range
+		$currentMonth = $startMonth;
+		$currentYear = $startYear;
+		$weekdays = array (1 => 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun');	// Indexed from 1 (ISO 8601) for Monday to Sunday
+		while ($currentYear <= $endYear) {
+			while (mktime (12, 0, 0, $currentMonth, 1, $currentYear) <= mktime (12, 0, 0, $endMonth, 1, $endYear)) {
+				$currentDay = 1;
+				
+				# Add month container
+				$currentTimestamp = mktime (12, 0, 0, $currentMonth, $currentDay, $currentYear);
+				$html .= "\n\n\t" . '<div class="calendar-month" data-month="' . date ('Y-m', $currentTimestamp) . '">';
+				
+				# Add the heading
+				$html .= "\n\n\t\t" . '<h3>' . date ('F', mktime (12, 0, 0, $currentMonth, 1, $currentYear)) . ' ' . $currentYear . '</h3>';
+				
+				# Start the table for this month
+				$html .= "\n\n\t\t" . '<div class="calendar-table-container">';
+				$html .= "\n\t\t\t" . '<table>';
+				$html .= "\n\t\t\t\t" . '<tr>';
+				foreach ($weekdays as $weekday) {
+					$html .= "\n\t\t\t\t\t" . '<th>' . $weekday . '</th>';
+				}
+				$html .= "\n\t\t\t\t" . '</tr>';
+				
+				# Loop through each day
+				$html .= "\n\t\t\t\t" . '<tr>';
+				$lastDayInMonth = cal_days_in_month (CAL_GREGORIAN, $currentMonth, $currentYear);
+				while ($currentDay <= $lastDayInMonth) {
+					$currentTimestamp = mktime (12, 0, 0, $currentMonth, $currentDay, $currentYear);
+					$currentWeekdayIndex = date ('N', $currentTimestamp);	// Indexed from 1 (ISO 8601) for Monday to Sunday, as above
+					
+					# Pad initial columns in first row, so that day 1 is under the correct day heading
+					if ($currentDay == 1) {
+						for ($weekdayIndex = 1; $weekdayIndex < $currentWeekdayIndex; $weekdayIndex++) {
+							$html .= "\n\t\t\t\t\t" . '<td></td>';
+						}
+					}
+					
+					# Determine the cell content
+					$currentDate = date ('Y-m-d', $currentTimestamp);
+					$link = date ($linkFormat, $currentTimestamp);
+					$dayLinked = "<a class=\"calendar-choosedate\" href=\"{$link}\" data-date=\"{$currentDate}\">" . $currentDay . '</a>';
+					$dayUnlinked = '<span>' . $currentDay . '</span>';
+					switch (true) {
+						
+						// Link dates mode = true: Show linked date
+						case ($linkDates === true):
+							$content = $dayLinked;
+							break;
+							
+						// Link dates mode = false: Now unlinked date
+						case (!$linkDates):
+							$content = $dayUnlinked;
+							break;
+							
+						// Associative array mode, as (date => array (timeLabel => url), ...): Dates linked if present, else unlinked; when linked, UI to select time
+						case ($hasTimeslots):
+							if (isSet ($linkDates[$currentDate])) {
+								$content  = $dayLinked;
+								$list = array ();
+								foreach ($linkDates[$currentDate] as $label => $url) {
+									$list[] = '<a href="' . htmlspecialchars ($url) . '">' . htmlspecialchars ($label) . '</a>';
+								}
+								$content .= "\n\t\t\t\t\t\t" . "<dialog class=\"calendar-timeslots\" data-date=\"{$currentDate}\">";
+								$content .= "\n\t\t\t\t\t\t" . '<button class="calendar-dialog-close" type="reset">X</button>';
+								$content .= "\n\t\t\t\t\t\t" . "<h4>" . date ('jS F, Y', $currentTimestamp) . '</h4>';
+								$content .= "\n\t\t\t\t\t\t" . "<p>Please choose a time:</p>";
+								$content .= application::htmlUl ($list, 7, 'calendar-timeslots');
+								$content .= "\t\t\t\t\t\t</dialog>";
+							} else {
+								$content = $dayUnlinked;
+							}
+							break;
+							
+						// Simple array mode of dates: Dates linked if present, else unlinked
+						case (is_array ($linkDates)):
+							$content = (in_array ($currentDate, $linkDates) ? $dayLinked : $dayUnlinked);
+							break;
+					}
+					
+					# Add the cell
+					$html .= "\n\t\t\t\t\t" . '<td data-date="' . $currentDate . '"' . ($currentDate == $today ? ' class="calendar-today" title="Today"' : '') . '>' . $content . '</td>';
+					
+					# New row if a Sunday
+					if ($currentWeekdayIndex == 7) {
+						if ($currentDay != $lastDayInMonth) {	// Avoid creating new line if at the end, as is closed later
+							$html .= "\n\t\t\t\t" . '</tr>';
+							$html .= "\n\t\t\t\t" . '<tr>';
+						}
+					}
+					
+					# Next day
+					$currentDay++;
+				}
+				
+				# Pad final columns in last row
+				for ($weekdayIndex = $currentWeekdayIndex; $weekdayIndex < 7; $weekdayIndex++) {
+					$html .= "\n\t\t\t\t\t" . '<td></td>';
+				}
+				
+				# End month row
+				$html .= "\n\t\t\t\t" . '</tr>';
+				$html .= "\n\t\t\t" . '</table>';
+				$html .= "\n\t\t" . '</div><!-- /.calendar-table-container -->';
+				
+				# End month container
+				$html .= "\n\n\t" . '</div><!-- /.calendar-month -->';
+				
+				# Next month
+				$currentDay = 1;
+				if ($currentMonth == 12) {break;}
+				$currentMonth++;
+			}
+			
+			# Next year
+			$currentDay = 1;
+			$currentMonth = 1;
+			$currentYear++;
+		}
+		
+		# Surround with a main div
+		$html = "\n\n" . '<div class="calendar-container">' . $html . "\n\n</div><!-- /.calendar-container -->";
+		
+		# Add in styles
+		$stylesHtml = "\n\n" . '<style>
+			.calendar-container {display: flow-root; margin-top: 25px;}
+			.calendar-container .calendar-month {float: left; margin: 0 20px 20px 0; padding: 5px 10px;}
+			.calendar-container .calendar-month:hover {background-color: #fcfcfc;}
+			.calendar-container .calendar-month h3 {margin: 5px 0 10px; padding: 0; text-align: center;}
+			.calendar-container .calendar-month .calendar-table-container {height: 20em;}
+			.calendar-container .calendar-month table {border: 0; border-collapse: collapse; margin: 0; background-color: transparent;}
+			.calendar-container .calendar-month table th, .calendar-container .calendar-month table td {width: 2em; max-width: 2em; height: 2em; max-height: 2em; text-align: center; vertical-align: middle; padding: 0.2em; background-color: transparent;}
+			.calendar-container .calendar-month table td span, .calendar-container .calendar-month table td a.calendar-choosedate {display: inline-block; width: 1.4em; height: 1.4em; padding: 3px; border-radius: 50%; border: 1px solid transparent; text-decoration: none;}
+			.calendar-container .calendar-month table td span {cursor: default;}
+			.calendar-container .calendar-month table td.calendar-today span, .calendar-container .calendar-month table td.calendar-today a {border-color: #ddd;}
+			.calendar-container .calendar-month table td:hover span {background-color: #eee;}
+			.calendar-container .calendar-month table td a.calendar-choosedate {font-weight: bold; background-color: rgba(0, 105, 255, 0.066);}
+			.calendar-container .calendar-month table td a.calendar-choosedate:hover {color: blue; background-color: rgba(0, 105, 255, 0.4);}
+			.calendar-container dialog {width: 200px; height: 300px; padding: 20px; overflow-y: auto; border: 1px solid gray;}
+			@keyframes calendar-fadein { from {opacity: 0;} to {opacity: 1;} }
+			.calendar-container dialog[open] {animation: calendar-fadein 0.5s ease normal;}
+			.calendar-container dialog h4 {margin-top: 20px;}
+			.calendar-container dialog button.calendar-dialog-close {float: right;}
+			.calendar-container dialog ul {margin: 25px 0 0; padding: 0; list-style: none;}
+			.calendar-container dialog ul li {width: auto; margin-bottom: 10px;}
+			.calendar-container dialog ul li a {text-decoration: none; border-bottom: 0; display: block; padding: 10px; border: 1px solid gray; border-radius: 10px;}
+		</style>
+		';
+		$html = $stylesHtml . $html;
+		
+		# JS
+		if ($linkDates) {
+			$jsHtml = "\n\n" . "<script>
+				document.addEventListener ('DOMContentLoaded', function () {
+					document.querySelectorAll ('.calendar-container a').forEach (function (element) {
+						element.addEventListener ('click', function (e) {
+							const date = e.target.dataset.date;
+							const month = date.slice (0, 7);	// i.e. YYYY-MM
+							
+							// Add in JS custom event, for convenience of client code
+							document.dispatchEvent (new CustomEvent ('@calendar/datechosen', {bubbles: true, detail: date}));
+							
+							// Show timeslot selector if present
+							const timeslotListHtml = e.target.parentElement.querySelector ('ul.calendar-timeslots');
+							if (timeslotListHtml) {
+								const dialog = document.querySelector ('dialog[data-date=\"' + date + '\"]');
+								dialog.showModal ();
+								dialog.querySelector ('button.calendar-dialog-close').addEventListener ('click', function () {dialog.close ();});
+							}
+						});
+					});
+					
+					// Example client code use:
+					// document.addEventListener ('@calendar/datechosen', function (e) {alert (e.detail);});
+				});
+				
+				
+			</script>
+			";
+			$html .= $jsHtml;
+		}
+		
+		# Return the HTML
+		return $html;
+	}
 }
 
 ?>
