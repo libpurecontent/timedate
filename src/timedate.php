@@ -638,7 +638,7 @@ class timedate
 	
 	# Function to add JS calendar rending over the bookings table, based on the range of dates supplied (in Y-m-d SQL format)
 	# Link dates options: true for all / false for none / simple array of dates / associative array of date => array (timeLabel => url)
-	public static function calendar ($dates, $linkDates = true, $linkFormat = '#Y-m-d')
+	public static function calendar ($dates, $linkDates = true, $hoverTextsHtml = array (), $linkFormat = '#Y-m-d')
 	{
 		# Start the HTML
 		$html = '';
@@ -739,7 +739,7 @@ class timedate
 					}
 					
 					# Add the cell
-					$html .= "\n\t\t\t\t\t" . '<td data-date="' . $currentDate . '"' . ($currentDate == $today ? ' class="calendar-today" title="Today"' : '') . '>' . $content . '</td>';
+					$html .= "\n\t\t\t\t\t" . '<td data-date="' . $currentDate . '"' . ($currentDate == $today ? ' class="calendar-today" title="Today"' : '') . (isSet ($hoverTextsHtml[$currentDate]) ? ' title="' . str_replace ('"', '&quot;', $hoverTextsHtml[$currentDate]) . '"' : '') . '>' . $content . '</td>';
 					
 					# New row if a Sunday
 					if ($currentWeekdayIndex == 7) {
