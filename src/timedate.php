@@ -721,7 +721,7 @@ class timedate
 								foreach ($linkDates[$currentDate] as $label => $url) {
 									$list[] = '<a href="' . htmlspecialchars ($url) . '">' . htmlspecialchars ($label) . '</a>';
 								}
-								$content .= "\n\t\t\t\t\t\t" . "<dialog class=\"calendar-timeslots\" data-date=\"{$currentDate}\">";
+								$content .= "\n\t\t\t\t\t\t" . "<dialog class=\"calendar-timeslots\" data-date=\"{$currentDate}\" closedby=\"any\">";
 								$content .= "\n\t\t\t\t\t\t" . '<button class="calendar-dialog-close" type="reset">X</button>';
 								$content .= "\n\t\t\t\t\t\t" . "<h4>" . date ('jS F, Y', $currentTimestamp) . '</h4>';
 								$content .= "\n\t\t\t\t\t\t" . "<p>Please choose a time:</p>";
