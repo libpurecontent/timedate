@@ -645,6 +645,9 @@ class timedate
 		# Start the HTML
 		$html = '';
 		
+		# End if no dates
+		if (!$dates) {return false;}
+		
 		# Order the supplied dates, in case not already ordered
 		sort ($dates);
 		
